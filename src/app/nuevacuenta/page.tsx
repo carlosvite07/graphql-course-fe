@@ -3,23 +3,23 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-import { useQuery } from "@apollo/experimental-nextjs-app-support/ssr";
-import { gql } from "@apollo/client";
+// import { useQuery } from "@apollo/experimental-nextjs-app-support/ssr";
+// import { gql } from "@apollo/client";
 
-const queryProductos = gql`
-  query ObtenerProductos {
-    obtenerProductos {
-      nombre
-      precio
-      existencia
-    }
-  }
-`;
+// const QUERY_PRODUCTOS = gql`
+//   query ObtenerProductos {
+//     obtenerProductos {
+//       nombre
+//       precio
+//       existencia
+//     }
+//   }
+// `;
 
 function NuevaCuenta() {
-  const { data } = useQuery(queryProductos);
+  // const { data } = useQuery(QUERY_PRODUCTOS);
 
-  console.log(data);
+  // console.log(data);
 
   const formik = useFormik({
     initialValues: {
