@@ -11,6 +11,7 @@
   "dependencies": {
     "@apollo/client": "^3.9.5",
     "@apollo/experimental-nextjs-app-support": "^0.8.0",
+    "apollo-link-context": "^1.0.20",
     "formik": "^2.4.5",
     "graphql": "^16.8.1",
     "next": "14.1.0",

@@ -17,7 +17,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isLogged = false;
+  const isLogged = true;
 
   return (
     <html lang="en">

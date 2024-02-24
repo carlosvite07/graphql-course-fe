@@ -1,20 +1,40 @@
 "use client";
 // ^ this file needs the "use client" pragma
 
-import { ApolloLink, HttpLink } from "@apollo/client";
+import {
+  ApolloLink,
+  createHttpLink,
+  HttpLink,
+  RequestHandler,
+} from "@apollo/client";
 import {
   ApolloNextAppProvider,
   NextSSRInMemoryCache,
   NextSSRApolloClient,
   SSRMultipartLink,
 } from "@apollo/experimental-nextjs-app-support/ssr";
+import { setContext } from "apollo-link-context";
 
 // have a function to create a client for you
 function makeClient() {
-  const httpLink = new HttpLink({
+  const customHttpLink = createHttpLink({
     uri: "http://localhost:4000/",
     fetchOptions: { cache: "no-store" },
   });
+
+  const authLink = setContext((_, { headers }) => {
+    // Leer el storage almacenado
+    const token = localStorage.getItem("token");
+
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `Bearer ${token}` : "",
+      },
+    };
+  });
+
+  const httpLink = authLink.concat(customHttpLink as any);
 
   return new NextSSRApolloClient({
     // use the `NextSSRInMemoryCache`, not the normal `InMemoryCache`
@@ -28,7 +48,7 @@ function makeClient() {
             new SSRMultipartLink({
               stripDefer: true,
             }),
-            httpLink,
+            httpLink as any,
           ])
         : httpLink,
   });
