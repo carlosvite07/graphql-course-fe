@@ -1,25 +1,28 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useRouter } from "next/navigation";
 
-// import { useQuery } from "@apollo/experimental-nextjs-app-support/ssr";
-// import { gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 
-// const QUERY_PRODUCTOS = gql`
-//   query ObtenerProductos {
-//     obtenerProductos {
-//       nombre
-//       precio
-//       existencia
-//     }
-//   }
-// `;
+const NUEVA_CUENTA = gql`
+  mutation nuevoUsuario($input: UsuarioInput) {
+    nuevoUsuario(input: $input) {
+      id
+      nombre
+      apellido
+      email
+    }
+  }
+`;
 
 function NuevaCuenta() {
-  // const { data } = useQuery(QUERY_PRODUCTOS);
+  const [mensaje, setMensaje] = useState<string | null>(null);
 
-  // console.log(data);
+  const [nuevoUsuario] = useMutation(NUEVA_CUENTA);
+
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -38,14 +41,45 @@ function NuevaCuenta() {
         .required("El password no puede ir vacío")
         .min(6, "El password debe ser de al menos 6 caracteres"),
     }),
-    onSubmit: (valores) => {
-      console.log("enviando");
-      console.log(valores);
+    onSubmit: async (valores) => {
+      try {
+        const { data } = await nuevoUsuario({
+          variables: {
+            input: {
+              ...valores,
+            },
+          },
+        });
+
+        setMensaje(
+          `Se creo correctamente el Usuario: ${data.nuevoUsuario.nombre}`
+        );
+
+        setTimeout(() => {
+          setMensaje(null);
+          router.push("/login");
+        }, 3000);
+      } catch (error: any) {
+        setMensaje(error.message);
+
+        setTimeout(() => {
+          setMensaje(null);
+        }, 3000);
+      }
     },
   });
 
+  const mostrarMensaje = () => {
+    return (
+      <div className="bg-white py-2 px-3 w-full my-3 max-w-sm text-center mx-auto">
+        <p>{mensaje}</p>
+      </div>
+    );
+  };
+
   return (
     <>
+      {mensaje && mostrarMensaje()}
       <h1 className="text-center text-2xl text-white font-light">
         Crear Nueva Cuenta
       </h1>
@@ -89,6 +123,7 @@ function NuevaCuenta() {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="apellido"
+                onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
                 placeholder="Apellido Usuario"
                 type="text"
@@ -112,6 +147,7 @@ function NuevaCuenta() {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="email"
+                onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
                 placeholder="Email Usuario"
                 type="email"
@@ -135,6 +171,7 @@ function NuevaCuenta() {
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="password"
+                onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
                 placeholder="Password Usuario"
                 type="password"
